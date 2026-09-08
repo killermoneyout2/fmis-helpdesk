@@ -31,8 +31,22 @@ const db = urlCfg || {
   database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'fmis',
 };
 
+const isProd = process.env.NODE_ENV === 'production';
+
+// 'dev-secret-change-me' is public in this repo, so anyone could forge a signed
+// session cookie with it. Fine on localhost; in production an unset
+// SESSION_SECRET falls back to a random value instead (sessions then reset on
+// each restart, which is a visible nuisance rather than a silent hole).
+function sessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  if (!isProd) return 'dev-secret-change-me';
+  console.warn('SESSION_SECRET is not set — using a random secret. Sessions will not survive a restart.');
+  return require('crypto').randomBytes(32).toString('hex');
+}
+
 module.exports = {
   port: parseInt(process.env.PORT || '3000', 10),
-  sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  isProd,
+  sessionSecret: sessionSecret(),
   db,
 };

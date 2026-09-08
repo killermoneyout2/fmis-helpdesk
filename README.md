@@ -56,7 +56,7 @@ implementing the database design from the project report.
 
 ## Signing in
 
-Demo accounts created by the seed:
+Demo accounts created by the seed. These passwords apply **on a local run only**:
 
 | Role | Email | Password |
 |---|---|---|
@@ -65,8 +65,27 @@ Demo accounts created by the seed:
 | Staff | `k.asante@lancaster.edu.gh` | `staff123` |
 
 New students and staff can also **create their own account** from the sign-in screen
-("Create an account"). Change the coordinator's seed password by setting the
-`COORDINATOR_PASSWORD` environment variable before first start.
+("Create an account").
+
+Override any of them with `COORDINATOR_PASSWORD`, `STUDENT_PASSWORD` and
+`STAFF_PASSWORD`, set **before the first start** — the seed runs once, when the
+database is empty.
+
+Under `NODE_ENV=production` an unset variable produces a random password, logged
+on first boot, rather than the value in this table. The table is published, so a
+deployment that forgot to set these would otherwise have a known admin login.
+The same rule applies to `SESSION_SECRET`.
+
+### Changing a password afterwards
+
+The seed only runs on an empty database, so those variables do nothing once an
+account exists, and there is no password-reset route. To rotate a password —
+for a live deployment still on a demo password, say — run against that database:
+
+```bash
+npm run set-password -- ellen@lancaster.edu.gh              # generates and prints one
+npm run set-password -- ellen@lancaster.edu.gh 'a-strong-password'
+```
 
 ### A note on authentication
 

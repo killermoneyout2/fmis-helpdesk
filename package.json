@@ -5,7 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "setup-db": "node server/setup-db-cli.js",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "set-password": "node server/set-password-cli.js"
   },
   "dependencies": {
     "express": "^4.19.2",

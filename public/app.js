@@ -1,3 +1,10 @@
+
+// The demo credentials belong on a marker's laptop, not on a public sign-in
+// page. Show them only when the app is being served from this machine.
+function isLocal() {
+  return ['localhost', '127.0.0.1', '::1', ''].includes(location.hostname);
+}
+
 'use strict';
 
 // ---------- tiny helpers ----------
@@ -68,7 +75,7 @@ function authView(){
     <button class="primary" id="li-go">Sign in</button>
     <div class="err" id="auth-err"></div>
     <p class="hint">New here? <button class="switch" id="to-register">Create an account</button></p>
-    <p class="hint" style="margin-top:6px">Demo coordinator: ellen@lancaster.edu.gh / coordinator123</p>`);
+    ${isLocal() ? '<p class="hint" style="margin-top:6px">Demo coordinator: ellen@lancaster.edu.gh / coordinator123</p>' : ''}`);
 }
 function wireAuth(){
   if (authMode === 'register') {

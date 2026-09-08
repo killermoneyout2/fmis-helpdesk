@@ -7,11 +7,20 @@ const { initDb } = require('./setup-db');
 
 const app = express();
 app.use(express.json());
+// Railway/Render terminate TLS upstream, so trust the proxy or `secure`
+// cookies are never sent.
+if (cfg.isProd) app.set('trust proxy', 1);
+
 app.use(session({
   secret: cfg.sessionSecret,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 8 },
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: cfg.isProd,
+    maxAge: 1000 * 60 * 60 * 8,
+  },
 }));
 
 app.use('/api/auth', require('./routes/auth'));

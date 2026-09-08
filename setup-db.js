@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const { db } = require('./config');
+const crypto = require('crypto');
 const { hashPassword } = require('./password');
 
 async function initDb() {
@@ -37,8 +38,24 @@ async function initDb() {
     return r.insertId;
   };
 
-  // Coordinator password can be overridden at deploy time.
-  const coordPw = process.env.COORDINATOR_PASSWORD || 'coordinator123';
+  // Demo passwords. On localhost these are fixed so the demo is easy to run.
+  // In production a missing override becomes a random password instead of a
+  // known constant — this repo is readable, so a constant here would be a
+  // published admin login for every deployment that forgot to set the env var.
+  const demoPw = (envVar, devDefault) => {
+    const supplied = process.env[envVar];
+    if (supplied) return supplied;
+    if (process.env.NODE_ENV === 'production') {
+      const generated = crypto.randomBytes(12).toString('base64url');
+      console.warn(`${envVar} is not set — generated one for this deployment.`);
+      return generated;
+    }
+    return devDefault;
+  };
+
+  const coordPw   = demoPw('COORDINATOR_PASSWORD', 'coordinator123');
+  const studentPw = demoPw('STUDENT_PASSWORD',     'student123');
+  const staffPw   = demoPw('STAFF_PASSWORD',       'staff123');
   const ellen = await addUser('Ellen', 'ellen@lancaster.edu.gh', 'staff', 'coordinator', null, coordPw);
 
   // Technicians don't sign in through the UI (no password set).
@@ -52,8 +69,8 @@ async function initDb() {
     house:    await addUser('Efua Sam',      'efua.sam@lancaster.edu.gh',      'staff', 'technician', 'Housekeeper'),
   };
   // Two demo requester accounts (so seeded complaints have owners who can log in).
-  const ama  = await addUser('Ama Danso',   'ama.danso@student.lancaster.edu.gh', 'student', 'requester', null, 'student123');
-  const kojo = await addUser('Kojo Asante', 'k.asante@lancaster.edu.gh',          'staff',   'requester', null, 'staff123');
+  const ama  = await addUser('Ama Danso',   'ama.danso@student.lancaster.edu.gh', 'student', 'requester', null, studentPw);
+  const kojo = await addUser('Kojo Asante', 'k.asante@lancaster.edu.gh',          'staff',   'requester', null, staffPw);
 
   // ---- complaints + history ------------------------------------------
   console.log('Seeding complaints…');
@@ -119,8 +136,8 @@ async function initDb() {
   await conn.end();
   console.log('Done. Demo logins:');
   console.log('  Coordinator: ellen@lancaster.edu.gh / ' + coordPw);
-  console.log('  Student:     ama.danso@student.lancaster.edu.gh / student123');
-  console.log('  Staff:       k.asante@lancaster.edu.gh / staff123');
+  console.log('  Student:     ama.danso@student.lancaster.edu.gh / ' + studentPw);
+  console.log('  Staff:       k.asante@lancaster.edu.gh / ' + staffPw);
 }
 
 module.exports = { initDb };

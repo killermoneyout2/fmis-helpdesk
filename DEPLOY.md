@@ -31,10 +31,16 @@ demo (a tiny app + database runs for weeks on it).
      pick it — choose the MySQL service's `MYSQL_URL` (it looks like
      `mysql://root:...@...railway.app:PORT/railway`).
 
-   Also add:
+   Also add, **before the first start** — the demo accounts are seeded once, on
+   the first boot, and these values are what they get:
    - **Name:** `SESSION_SECRET` **Value:** any long random string.
-   - **Name:** `COORDINATOR_PASSWORD` **Value:** a password for the coordinator account
-     (used when the database is first seeded).
+   - **Name:** `COORDINATOR_PASSWORD` **Value:** a password for the coordinator account.
+   - **Name:** `STUDENT_PASSWORD` and `STAFF_PASSWORD` **Value:** passwords for the two
+     demo requester accounts.
+
+   > Leave any of them unset in production and the app generates a random value
+   > rather than using the default printed in this repository — safe, but you
+   > will have to read the password out of the deploy logs.
 
 5. Railway redeploys. The app **creates its own tables and demo data on first
    start** — no extra command needed. When the deploy finishes, open the
@@ -42,8 +48,8 @@ demo (a tiny app + database runs for weeks on it).
    URL (HTTPS is automatic).
 
 6. Visit the URL. Sign in as **Coordinator** with `ellen@lancaster.edu.gh` and the
-   `COORDINATOR_PASSWORD` you set (or `coordinator123` if you left it unset). Students
-   and staff can create their own accounts from the sign-in screen.
+   `COORDINATOR_PASSWORD` you set. Students and staff can create their own accounts
+   from the sign-in screen.
 
 That's it — share the URL for your demo.
 

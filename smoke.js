@@ -28,7 +28,7 @@ function check(name, cond, extra){
 
   console.log('Coordinator flow');
   const co = client();
-  r = await co('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'ellen@lancaster.edu.gh', password: 'coordinator123' }) });
+  r = await co('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'ellen@lancaster.edu.gh', password: process.env.COORDINATOR_PASSWORD || 'coordinator123' }) });
   check('coordinator signs in with password', r.status === 200 && r.body.user.role === 'coordinator', r.body);
 
   r = await co('/api/stats');
